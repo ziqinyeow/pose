@@ -43,7 +43,7 @@ KEYPOINT_EDGE_COLOR = {
     (14, 16): "c",
 }
 
-PRETRAINED_TFLITE_PATH = {
+MODEL = {
     # default
     "movenet": "singlepose_thunder.tflite",
     # lightning - singlepose
@@ -66,5 +66,7 @@ def CONFIG(model, backend=None):
     return {
         "backend": backend,
         "input_size": 192 if "lightning" in model else 256,
-        "model_path": PRETRAINED_TFLITE_PATH[model] if backend == "tflite" else None,
+        "model_path": MODEL[model] if backend == "tflite" else None,
+        "keypoint_dict": KEYPOINT_DICT,
+        "edge_color_dict": KEYPOINT_EDGE_COLOR,
     }

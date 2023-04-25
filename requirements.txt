@@ -4,6 +4,12 @@ torchvision
 matplotlib
 opencv-python
 
+
 # conda
 tensorflow
 tensorflow-hub
+
+
+# others
+black
+tqdm

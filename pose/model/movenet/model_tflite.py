@@ -1,4 +1,6 @@
 import os
+import tqdm
+import numpy as np
 import tensorflow as tf
 
 
@@ -10,6 +12,10 @@ class TFLiteMovenet:
 
     @staticmethod
     def load_tflite_from_local(path: str) -> None:
+        """
+        Load a movenet model from local path
+        """
+
         path = (
             path
             if path.startswith("pose/model/movenet/weight")
@@ -37,7 +43,21 @@ class TFLiteMovenet:
         return movenet
 
     def __call__(self, x):
+        """
+        Shape x == 3: Image -> [width, height, channel]
+        Shape x == 4: Video -> [frameNo, width, height, channel]
+        """
+
         if len(x.shape) == 3:
             x = tf.expand_dims(x, axis=0)
-        x = tf.image.resize_with_pad(x, self.input_size, self.input_size)
-        return self.model(x)
+            x = tf.image.resize_with_pad(x, self.input_size, self.input_size)
+            return self.model(x)
+        elif len(x.shape) == 4:
+            out = []
+            for _x in tqdm.tqdm(x):
+                _x = tf.expand_dims(_x, axis=0)
+                _x = tf.image.resize_with_pad(_x, self.input_size, self.input_size)
+                out.append(self.model(_x))
+            return np.array(out)
+
+        return None
