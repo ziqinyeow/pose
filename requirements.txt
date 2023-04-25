@@ -1,0 +1,9 @@
+# pip
+torch
+torchvision
+matplotlib
+opencv-python
+
+# conda
+tensorflow
+tensorflow-hub
