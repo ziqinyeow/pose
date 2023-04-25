@@ -26,7 +26,10 @@ class AutoModel:
             1
         ]
 
-        return model(config)
+        return AutoModel(model=model, config=config)
+
+    def get_config(self, key, v=None):
+        return self.config.get(key, v)
 
     def __call__(self, x):
-        output = self.model(x)
+        return self.model(x)

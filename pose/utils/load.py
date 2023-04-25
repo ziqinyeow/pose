@@ -54,7 +54,8 @@ def load(path: str, return_tensors="tf"):
         tensor = np.empty((count, height, width, 3), np.dtype("uint8"))
 
         while fc < count and ret:
-            ret, tensor[fc] = cap.read()
+            ret, frame = cap.read()
+            tensor[fc] = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             fc += 1
 
         cap.release()
@@ -62,6 +63,7 @@ def load(path: str, return_tensors="tf"):
 
     else:  # image
         tensor = cv2.imread(path)
+        tensor = cv2.cvtColor(tensor, cv2.COLOR_RGB2BGR)
         print(f"Image size: {sys.getsizeof(tensor) / sys.maxsize * 100} % space used")
 
     return (

@@ -2,6 +2,7 @@ import os
 import tqdm
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 
 class TFLiteMovenet:
@@ -51,6 +52,8 @@ class TFLiteMovenet:
         if len(x.shape) == 3:
             x = tf.expand_dims(x, axis=0)
             x = tf.image.resize_with_pad(x, self.input_size, self.input_size)
+            return self.model(x)
+        elif len(x.shape) == 4 and x.shape[0] == 1:
             return self.model(x)
         elif len(x.shape) == 4:
             out = []

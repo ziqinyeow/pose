@@ -1,12 +1,8 @@
 from pose import AutoModel, load, viz
 
-
 model = AutoModel.from_pretrained("movenet")
-image = load("test/bike.mp4", return_tensors="tf")
-print(image.shape)
+img = load("data/run.png", return_tensors="tf")
+viz(img, model)
 
-logits = model(image)
-# viz(image, logits)
-
-
-print(logits.shape, type(logits))
+# vid = load("data/bike.mp4", return_tensors="tf")
+# viz(vid, model) # create a .gif file of the inference video

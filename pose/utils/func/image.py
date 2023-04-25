@@ -1,31 +1,14 @@
+import numpy as np
 import cv2
 import numpy as np
+import matplotlib
+
+# to work on mac
+matplotlib.use("TKAgg")
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.collections import LineCollection
-
-import tensorflow as tf
-
-# Dictionary that maps from joint names to keypoint indices.
-KEYPOINT_DICT = {
-    "nose": 0,
-    "left_eye": 1,
-    "right_eye": 2,
-    "left_ear": 3,
-    "right_ear": 4,
-    "left_shoulder": 5,
-    "right_shoulder": 6,
-    "left_elbow": 7,
-    "right_elbow": 8,
-    "left_wrist": 9,
-    "right_wrist": 10,
-    "left_hip": 11,
-    "right_hip": 12,
-    "left_knee": 13,
-    "right_knee": 14,
-    "left_ankle": 15,
-    "right_ankle": 16,
-}
 
 # Maps bones to a matplotlib color name.
 KEYPOINT_EDGE_INDS_TO_COLOR = {
@@ -51,7 +34,10 @@ KEYPOINT_EDGE_INDS_TO_COLOR = {
 
 
 def keypoints_and_edges_for_display(
-    keypoints_with_scores, height, width, keypoint_threshold=0.11
+    keypoints_with_scores,
+    height,
+    width,
+    keypoint_threshold=0.11,
 ):
     """Returns high confidence keypoints and edges for visualization.
 
@@ -138,6 +124,7 @@ def draw_prediction_on_image(
     aspect_ratio = float(width) / height
     fig, ax = plt.subplots(figsize=(12 * aspect_ratio, 12))
     # To remove the huge white borders
+    ax.axis("off")
     fig.tight_layout(pad=0)
     ax.margins(0)
     ax.set_yticklabels([])
@@ -179,8 +166,6 @@ def draw_prediction_on_image(
 
     fig.canvas.draw()
     image_from_plot = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-    print(image_from_plot.shape)
-    print(fig.canvas.get_width_height()[::-1] + (3,))
     image_from_plot = image_from_plot.reshape(
         fig.canvas.get_width_height()[::-1] + (3,)
     )
@@ -193,20 +178,3 @@ def draw_prediction_on_image(
             interpolation=cv2.INTER_CUBIC,
         )
     return image_from_plot
-
-
-def viz(img, keypoints_with_scores):
-    if isinstance(img, tf.Tensor):
-        display_image = tf.expand_dims(img, axis=0)
-        display_image = tf.cast(
-            # display_image,
-            tf.image.resize_with_pad(display_image, 1280, 1280),
-            dtype=tf.int32,
-        )
-        output_overlay = draw_prediction_on_image(
-            np.squeeze(display_image.numpy(), axis=0),
-            keypoints_with_scores,
-        )
-        plt.figure(figsize=(5, 5))
-        plt.imshow(output_overlay)
-        plt.axis("off")
