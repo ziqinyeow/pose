@@ -2,7 +2,7 @@ from pose import pipeline
 
 # image inferencing
 pipeline(
-    "movenet", "data/run.png", show=True, save=False
+    "movenet", "data/run.png", show=True, save=True
 )  # give path name in save or just boolean
 
 exit()

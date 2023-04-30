@@ -2,9 +2,20 @@
 
 A pose estimation repo heavily inspired by HuggingFace SDK, building for only pose estimation inference and post-processing.
 
+<img src="./asset/demo.png" />
+
+With a single line of code,
+
+```python
+from pose import pipeline
+
+# image inferencing
+pipeline("movenet", "./data/run.png", show=True, save="./result/output.png")
+```
+
 ## Current Supported Model for Inference
 
-1. Movenet (TFLite)
+1. Movenet (TFLite) - Only Single Pose
 2. Way more to come ...
 
 ## Roadmap
@@ -17,7 +28,7 @@ Still in rapid development.
 python demo.py
 ```
 
-### Pipeline
+### Pipeline - Optimized by crop region algorithm
 
 ```python
 from pose import pipeline
