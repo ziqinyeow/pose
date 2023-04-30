@@ -4,9 +4,12 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+from ..base import BaseModel
 
-class TFLiteMovenet:
+
+class TFLiteMovenet(BaseModel):
     def __init__(self, config) -> None:
+        super().__init__()
         self.config = config
         self.input_size = config.get("input_size")
         self.model = self.load_tflite_from_local(config.get("model_path"))
@@ -27,7 +30,7 @@ class TFLiteMovenet:
         interpreter.allocate_tensors()
 
         dtype = (
-            tf.float16 if "fp16" in path else tf.int8 if "int8" in path else tf.float32
+            tf.uint8 if "fp16" in path or "int8" in path else tf.float32
         )
 
         def movenet(input_image):
@@ -43,24 +46,51 @@ class TFLiteMovenet:
 
         return movenet
 
-    def __call__(self, x):
+    def forward(self, frame, crop_region=None):
         """
-        Shape x == 3: Image -> [width, height, channel]
-        Shape x == 4: Video -> [frameNo, width, height, channel]
+        x: A single frame -> [height, width, channel]
+
+        return tensor with shape [1, 1, 17, 3]
         """
 
-        if len(x.shape) == 3:
-            x = tf.expand_dims(x, axis=0)
-            x = tf.image.resize_with_pad(x, self.input_size, self.input_size)
-            return self.model(x)
-        elif len(x.shape) == 4 and x.shape[0] == 1:
-            return self.model(x)
-        elif len(x.shape) == 4:
-            out = []
-            for _x in tqdm.tqdm(x):
-                _x = tf.expand_dims(_x, axis=0)
-                _x = tf.image.resize_with_pad(_x, self.input_size, self.input_size)
-                out.append(self.model(_x))
-            return np.array(out)
+        if len(frame.shape) == 4 and frame.shape[0] == 1:
+            return self.model(frame)
 
-        return None
+        assert len(frame.shape) == 3, "Only 1 frame is allowed at a time"
+
+        if crop_region is not None:
+            H, W, _ = frame.shape
+            cropped_frame = tf.image.crop_and_resize(
+                tf.expand_dims(frame, axis=0),
+                box_indices=[0],
+                boxes=[
+                    [
+                        crop_region["y_min"],
+                        crop_region["x_min"],
+                        crop_region["y_max"],
+                        crop_region["x_max"],
+                    ]
+                ],
+                crop_size=[self.input_size, self.input_size],
+            )
+
+            logits = self.model(cropped_frame)  # [1, 1, 17, 3]
+
+            for idx in range(17):
+                logits[0, 0, idx, 0] = (
+                    crop_region["y_min"] * H
+                    + crop_region["height"] * H * logits[0, 0, idx, 0]
+                ) / H
+                logits[0, 0, idx, 1] = (
+                    crop_region["x_min"] * W
+                    + crop_region["width"] * W * logits[0, 0, idx, 1]
+                ) / W
+
+            return logits
+        else:
+            return self.model(
+                tf.expand_dims(
+                    tf.image.resize_with_pad(frame, self.input_size, self.input_size),
+                    axis=0,
+                )
+            )
