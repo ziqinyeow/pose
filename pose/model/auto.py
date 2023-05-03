@@ -1,5 +1,6 @@
 import inspect
 import importlib
+from ..wiki import Wiki
 
 
 class AutoModel:
@@ -9,7 +10,7 @@ class AutoModel:
 
     @staticmethod
     def from_pretrained(model: str, config=None):
-        main_model = model.split(".")[0]
+        main_model = Wiki.get_model_parent(model)
         module = importlib.import_module(f"pose.model.{main_model}.config")
         config = config or getattr(module, "CONFIG")(model)
         backend = config.get("backend")

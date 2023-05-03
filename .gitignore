@@ -51,3 +51,5 @@ docs/_build/
 
 data/*.mp4
 .DS_Store
+
+pose/model/vitpose/weight

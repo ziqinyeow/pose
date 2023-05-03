@@ -5,6 +5,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from ..base import BaseModel
+from ...utils.transform import resize
 
 
 class TFLiteMovenet(BaseModel):
@@ -29,9 +30,7 @@ class TFLiteMovenet(BaseModel):
         interpreter = tf.lite.Interpreter(model_path=path)
         interpreter.allocate_tensors()
 
-        dtype = (
-            tf.uint8 if "fp16" in path or "int8" in path else tf.float32
-        )
+        dtype = tf.uint8 if "fp16" in path or "int8" in path else tf.float32
 
         def movenet(input_image):
             input_image = tf.cast(input_image, dtype=dtype)

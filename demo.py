@@ -1,14 +1,15 @@
 from pose import pipeline
 
 # image inferencing
-pipeline(
-    "movenet", "data/run.png", show=True, save=True
-)  # give path name in save or just boolean
+# pipeline(
+#     "movenet", "data/run.png", show=True, save=False
+# )  # give path name in save or just boolean
 
-exit()
 
 # Optimize for crop region algorithm - video
-pipeline("movenet", "./data/bike.mp4", show=True, save="./result/bike-inference.mp4")
+pipeline("movenet", "./data/bike.mp4", show=True, side="right", save=False)
+exit()
+# pipeline("vitpose-b", "data/bike.mp4", side="right", show=True)
 
 # pipeline(
 #     "movenet",

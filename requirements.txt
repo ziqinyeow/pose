@@ -5,6 +5,7 @@ torchvision
 matplotlib
 opencv-python
 vidgear[core]
+munkres
 
 # https://abhitronix.github.io/vidgear/latest/gears/writegear/compression/advanced/ffmpeg_install/
 

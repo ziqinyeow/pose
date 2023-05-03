@@ -24,4 +24,6 @@ def CONFIG(model, backend=None):
         "backend": backend,
         "input_size": 192 if "lightning" in model else 256,
         "model_path": MODEL[model],
+        "resize": True,
+        "crop_region": True,
     }

@@ -9,24 +9,28 @@ from vidgear.gears import CamGear, WriteGear
 
 def pipeline(
     model: str,
-    src: str,
+    src: typing.Union[str, int],
     show: bool = True,
     save: typing.Union[bool, str] = False,
+    side: str = "both",
+    angle: bool = True,
 ):
     m = AutoModel.from_pretrained(model)
     
-    stream = CamGear(source=src, stream_mode=src.startswith("https://"), colorspace="COLOR_BGR2RGB").start()
+    stream = CamGear(source=src, stream_mode=str(src).startswith("https://"), colorspace="COLOR_BGR2RGB").start()
 
     # framerate = stream.framerate
     framecount = int(stream.stream.get(cv2.CAP_PROP_FRAME_COUNT))
 
     # image
-    if framecount <= 1:
+    if framecount <= 1 and not isinstance(src, int):
         frame = stream.read()
         keypoints = m(frame)
 
         # resize to square -> prevent scaling offset -> keypoints misalignment
-        frame = resize(frame)
+        if m.config.get("resize") is not None and m.config.get("resize"):
+            frame = resize(frame)
+            
         plot(frame, keypoints, conf_thres=0)
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
@@ -64,9 +68,15 @@ def pipeline(
         if frame is None:
             break
 
-        keypoints = m(frame, crop_region)
-        plot(frame, keypoints, 3, side="both", conf_thres=0.2)
-        crop_region = determine_crop_region(keypoints, H, W)
+        frame.flags.writeable = False
+        if m.config.get("crop_region") is not None and m.config.get("crop_region"):
+            keypoints = m(frame, crop_region)
+            crop_region = determine_crop_region(keypoints, H, W)
+        else:
+            keypoints = m(frame)
+        frame.flags.writeable = True
+        
+        plot(frame, keypoints, 3, side=side, show_angle=angle, conf_thres=0.2)
 
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
