@@ -63,11 +63,11 @@ def torso_visible(keypoints):
     shoulders/hips which is required to determine a good crop region.
     """
     return (
-        keypoints[0, 0, KEYPOINT_DICT["left_hip"], 2] > MIN_CROP_KEYPOINT_SCORE
-        or keypoints[0, 0, KEYPOINT_DICT["right_hip"], 2] > MIN_CROP_KEYPOINT_SCORE
+        keypoints[0, KEYPOINT_DICT["left_hip"], 2] > MIN_CROP_KEYPOINT_SCORE
+        or keypoints[0, KEYPOINT_DICT["right_hip"], 2] > MIN_CROP_KEYPOINT_SCORE
     ) and (
-        keypoints[0, 0, KEYPOINT_DICT["left_shoulder"], 2] > MIN_CROP_KEYPOINT_SCORE
-        or keypoints[0, 0, KEYPOINT_DICT["right_shoulder"], 2] > MIN_CROP_KEYPOINT_SCORE
+        keypoints[0, KEYPOINT_DICT["left_shoulder"], 2] > MIN_CROP_KEYPOINT_SCORE
+        or keypoints[0, KEYPOINT_DICT["right_shoulder"], 2] > MIN_CROP_KEYPOINT_SCORE
     )
 
 
@@ -94,7 +94,7 @@ def determine_torso_and_body_range(
     max_body_yrange = 0.0
     max_body_xrange = 0.0
     for joint in KEYPOINT_DICT.keys():
-        if keypoints[0, 0, KEYPOINT_DICT[joint], 2] < MIN_CROP_KEYPOINT_SCORE:
+        if keypoints[0, KEYPOINT_DICT[joint], 2] < MIN_CROP_KEYPOINT_SCORE:
             continue
         dist_y = abs(center_y - target_keypoints[joint][0])
         dist_x = abs(center_x - target_keypoints[joint][1])
@@ -120,8 +120,8 @@ def determine_crop_region(keypoints, image_height, image_width):
     target_keypoints = {}
     for joint in KEYPOINT_DICT.keys():
         target_keypoints[joint] = [
-            keypoints[0, 0, KEYPOINT_DICT[joint], 0] * image_height,
-            keypoints[0, 0, KEYPOINT_DICT[joint], 1] * image_width,
+            keypoints[0, KEYPOINT_DICT[joint], 0] * image_height,
+            keypoints[0, KEYPOINT_DICT[joint], 1] * image_width,
         ]
 
     if torso_visible(keypoints):

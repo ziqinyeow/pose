@@ -47,12 +47,13 @@ def plot(
     kpts: np.ndarray,
     steps=3,
     side=None,
-    show_angle=True,
+    show_angle=False,
     conf_thres=0.5,
 ):
-    # kpts : [1, numOfPose, 17, 3]
+    # kpts : [numOfPose, 17, 3]
     # Plot the skeleton and keypoints for coco datatset 17 keypoints
-    kpts = kpts.flatten()
+    number_of_poses = kpts.shape[0]
+    kpts = kpts.reshape(number_of_poses, -1)
 
     H, W, _ = im.shape
 
@@ -78,104 +79,106 @@ def plot(
     right_skeleton = {1, 3, 5, 7, 9, 11, 13}
 
     radius = 5
-    num_kpts = len(kpts) // steps
-    # print(num_kpts, im.shape)
+    
+    for kpt in kpts:
+        num_kpts = len(kpts) // steps
+        # print(num_kpts, im.shape)
 
-    # plot keypoints - circle
-    for kid in range(num_kpts):
-        conf = kpts[steps * kid + 2]
-        if (
-            side == "right"
-            and kid not in right_kpts
-            or side == "left"
-            and kid not in left_kpts
-            or conf < conf_thres
-        ):
-            continue
-        r, g, b = pose_kpt_color[kid]
-        x_coord, y_coord = kpts[steps * kid + 1], kpts[steps * kid + 0]
-
-        if x_coord < 1:
-            x_coord *= W
-        if y_coord < 1:
-            y_coord *= H
-
-        cv2.circle(
-            im, (int(x_coord), int(y_coord)), radius, (int(r), int(g), int(b)), -1
-        )
-
-    # plot skeleton joints - line
-    for sk_id, sk in enumerate(skeleton):
-        conf1 = kpts[(sk[0]) * steps + 2]
-        conf2 = kpts[(sk[1]) * steps + 2]
-
-        if (
-            side == "right"
-            and sk_id not in right_skeleton
-            or side == "left"
-            and kid not in left_skeleton
-            or conf1 < conf_thres
-            or conf2 < conf_thres
-        ):
-            continue
-        r, g, b = pose_limb_color[sk_id]
-
-        x_coord1, y_coord1 = kpts[(sk[0]) * steps + 1], kpts[(sk[0]) * steps + 0]
-        x_coord2, y_coord2 = kpts[(sk[1]) * steps + 1], kpts[(sk[1]) * steps + 0]
-
-        if x_coord1 < 1:
-            x_coord1 = int(x_coord1 * W)
-            y_coord1 = int(y_coord1 * H)
-
-        if x_coord2 < 1:
-            x_coord2 = int(x_coord2 * W)
-            y_coord2 = int(y_coord2 * H)
-
-        pos1 = (int(x_coord1), int(y_coord1))
-        pos2 = (int(x_coord2), int(y_coord2))
-
-        cv2.line(im, pos1, pos2, (int(r), int(g), int(b)), thickness=2)
-
-    # plot angle - text
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    scale = 0.5
-    color = (255, 255, 255)
-    thickness = 2
-    if show_angle:
-        for i, (j1, j2, j3) in enumerate(angles):
+        # plot keypoints - circle
+        for kid in range(num_kpts):
+            conf = kpt[steps * kid + 2] if steps == 3 else None
             if (
                 side == "right"
-                and i in [0, 2, 4, 6]
+                and kid not in right_kpts
                 or side == "left"
-                and i in [1, 3, 5, 7]
+                and kid not in left_kpts
+                or conf is not None and (conf < conf_thres)
             ):
                 continue
-            x1_coord, y1_coord = kpts[steps * j1 + 1], kpts[steps * j1 + 0]
-            x2_coord, y2_coord = kpts[steps * j2 + 1], kpts[steps * j2 + 0]
-            x3_coord, y3_coord = kpts[steps * j3 + 1], kpts[steps * j3 + 0]
+            r, g, b = pose_kpt_color[kid]
+            x_coord, y_coord = kpt[steps * kid + 1], kpt[steps * kid + 0]
 
-            if x1_coord < 1:
-                x1_coord = int(x1_coord * W)
-                y1_coord = int(y1_coord * H)
+            if x_coord < 1:
+                x_coord *= W
+            if y_coord < 1:
+                y_coord *= H
 
-            if x2_coord < 1:
-                x2_coord = int(x2_coord * W)
-                y2_coord = int(y2_coord * H)
-
-            if x3_coord < 1:
-                x3_coord = int(x3_coord * W)
-                y3_coord = int(y3_coord * H)
-
-            ang = calculate_angle(
-                a=[x1_coord, y1_coord], b=[x2_coord, y2_coord], c=[x3_coord, y3_coord]
+            cv2.circle(
+                im, (int(x_coord), int(y_coord)), radius, (int(r), int(g), int(b)), -1
             )
 
-            cv2.putText(
-                im,
-                str(round(ang, 2)),
-                (int(x2_coord), int(y2_coord)),
-                font,
-                scale,
-                color,
-                thickness,
-            )
+        # plot skeleton joints - line
+        for sk_id, sk in enumerate(skeleton):
+            conf1 = kpt[(sk[0]) * steps + 2] if steps == 3 else None
+            conf2 = kpt[(sk[1]) * steps + 2] if steps == 3 else None
+
+            if (
+                side == "right"
+                and sk_id not in right_skeleton
+                or side == "left"
+                and kid not in left_skeleton
+                or conf1 is not None and conf1 < conf_thres
+                or conf2 is not None and conf2 < conf_thres
+            ):
+                continue
+            r, g, b = pose_limb_color[sk_id]
+
+            x_coord1, y_coord1 = kpt[(sk[0]) * steps + 1], kpt[(sk[0]) * steps + 0]
+            x_coord2, y_coord2 = kpt[(sk[1]) * steps + 1], kpt[(sk[1]) * steps + 0]
+
+            if x_coord1 < 1:
+                x_coord1 = int(x_coord1 * W)
+                y_coord1 = int(y_coord1 * H)
+
+            if x_coord2 < 1:
+                x_coord2 = int(x_coord2 * W)
+                y_coord2 = int(y_coord2 * H)
+
+            pos1 = (int(x_coord1), int(y_coord1))
+            pos2 = (int(x_coord2), int(y_coord2))
+
+            cv2.line(im, pos1, pos2, (int(r), int(g), int(b)), thickness=2)
+
+        # plot angle - text
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        scale = 0.5
+        color = (255, 255, 255)
+        thickness = 2
+        if show_angle:
+            for i, (j1, j2, j3) in enumerate(angles):
+                if (
+                    side == "right"
+                    and i in [0, 2, 4, 6]
+                    or side == "left"
+                    and i in [1, 3, 5, 7]
+                ):
+                    continue
+                x1_coord, y1_coord = kpt[steps * j1 + 1], kpt[steps * j1 + 0]
+                x2_coord, y2_coord = kpt[steps * j2 + 1], kpt[steps * j2 + 0]
+                x3_coord, y3_coord = kpt[steps * j3 + 1], kpt[steps * j3 + 0]
+
+                if x1_coord < 1:
+                    x1_coord = int(x1_coord * W)
+                    y1_coord = int(y1_coord * H)
+
+                if x2_coord < 1:
+                    x2_coord = int(x2_coord * W)
+                    y2_coord = int(y2_coord * H)
+
+                if x3_coord < 1:
+                    x3_coord = int(x3_coord * W)
+                    y3_coord = int(y3_coord * H)
+
+                ang = calculate_angle(
+                    a=[x1_coord, y1_coord], b=[x2_coord, y2_coord], c=[x3_coord, y3_coord]
+                )
+
+                cv2.putText(
+                    im,
+                    str(round(ang, 2)),
+                    (int(x2_coord), int(y2_coord)),
+                    font,
+                    scale,
+                    color,
+                    thickness,
+                )

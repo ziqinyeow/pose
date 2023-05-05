@@ -85,11 +85,11 @@ class TFLiteMovenet(BaseModel):
                     + crop_region["width"] * W * logits[0, 0, idx, 1]
                 ) / W
 
-            return logits
+            return logits.squeeze(0)
         else:
             return self.model(
                 tf.expand_dims(
                     tf.image.resize_with_pad(frame, self.input_size, self.input_size),
                     axis=0,
                 )
-            )
+            ).squeeze(0)

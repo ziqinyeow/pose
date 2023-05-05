@@ -4,6 +4,7 @@ from ..utils.transform import resize
 from ..utils.crop import init_crop_region, determine_crop_region
 
 import cv2
+import time
 import typing
 from vidgear.gears import CamGear, WriteGear
 
@@ -31,7 +32,7 @@ def pipeline(
         if m.config.get("resize") is not None and m.config.get("resize"):
             frame = resize(frame)
             
-        plot(frame, keypoints, conf_thres=0)
+        plot(frame, keypoints, steps=m.config.get("steps", 3), conf_thres=0)
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
         if show:
@@ -63,6 +64,10 @@ def pipeline(
     
     crop_region = init_crop_region(H, W)
 
+    idx = 0
+    prev_frame_time = 0
+    new_frame_time = 0
+    
     while True:
         frame = stream.read()
         if frame is None:
@@ -76,10 +81,18 @@ def pipeline(
             keypoints = m(frame)
         frame.flags.writeable = True
         
-        plot(frame, keypoints, 3, side=side, show_angle=angle, conf_thres=0.2)
+        plot(frame, keypoints, steps=m.config.get("steps", 3), side=side, show_angle=angle, conf_thres=0.2)
 
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        
+        new_frame_time = time.time()
+        fps = 1/(new_frame_time-prev_frame_time)
+        prev_frame_time = new_frame_time
+        
+        cv2.putText(frame, f"{idx}/{framecount}", (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3)
+        cv2.putText(frame, f"{round(fps, 2)} FPS", (100, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3)
 
+        idx += 1
         if show:
             cv2.imshow("output", frame)
 
