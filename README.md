@@ -16,7 +16,8 @@ pipeline("movenet", "./data/run.png", show=True, save="./result/output.png")
 ## Current Supported Model for Inference
 
 1. Movenet (TFLite) - Only Single Pose
-2. Way more to come ...
+2. RTMPose (PyTorch) - Multi Pose
+3. ViTPose (PyTorch)
 
 ## Roadmap
 

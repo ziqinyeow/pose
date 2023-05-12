@@ -1,11 +1,13 @@
-from pose import pipeline
+from pose import pipeline, Wiki
 
 
-pipeline("rtmpose-t", "./data/bike.mp4", side="right")
+# print(Wiki.list_models())
+pipeline("vitpose-b", "./data/bike1.mp4", side="right", angle=True)
 # pipeline("vitpose-b", "data/run.png", side="right", angle=True, show=True)
 # pipeline("movenet", "./data/run.png", show=True, side="right", save=False)
 # pipeline("vitpose-b", "data/bike.mp4", side="right", show=True)
 # pipeline("movenet", "./data/bike.mp4", show=True, side="right", save=False)
+exit()
 
 # image inferencing
 # pipeline(
@@ -14,7 +16,7 @@ pipeline("rtmpose-t", "./data/bike.mp4", side="right")
 
 
 # Optimize for crop region algorithm - video
-pipeline("movenet", "./data/bike.mp4", show=True, side="right", save=False)
+pipeline("movenet", "./data/", show=True, side="right", save=False)
 
 # pipeline(
 #     "movenet",

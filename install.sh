@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 pip install -q mmdet
 pip install -q -U openmim
 mim install mmengine

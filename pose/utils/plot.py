@@ -21,25 +21,25 @@ palette = np.array([[255, 128, 0], [255, 153, 51], [255, 178, 102],
                     [255, 255, 255]])
 # fmt: on
 
-# KEYPOINT_DICT = {
-#     "nose": 0,
-#     "left_eye": 1,
-#     "right_eye": 2,
-#     "left_ear": 3,
-#     "right_ear": 4,
-#     "left_shoulder": 5,
-#     "right_shoulder": 6,
-#     "left_elbow": 7,
-#     "right_elbow": 8,
-#     "left_wrist": 9,
-#     "right_wrist": 10,
-#     "left_hip": 11,
-#     "right_hip": 12,
-#     "left_knee": 13,
-#     "right_knee": 14,
-#     "left_ankle": 15,
-#     "right_ankle": 16,
-# }
+POSE_DICT = {
+    "nose": 0,
+    "left_eye": 1,
+    "right_eye": 2,
+    "left_ear": 3,
+    "right_ear": 4,
+    "left_shoulder": 5,
+    "right_shoulder": 6,
+    "left_elbow": 7,
+    "right_elbow": 8,
+    "left_wrist": 9,
+    "right_wrist": 10,
+    "left_hip": 11,
+    "right_hip": 12,
+    "left_knee": 13,
+    "right_knee": 14,
+    "left_ankle": 15,
+    "right_ankle": 16,
+}
 
 
 def plot(
@@ -66,10 +66,31 @@ def plot(
     pose_kpt_color = palette[[16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9]]
     
     angles = [
-        [5, 7, 9], [6, 8, 10], # elbow
+        [5, 7, 9], [6, 8, 10], # elbow (left, right)
         [7, 5, 11], [8, 6, 12], # shoulder
         [5, 11, 13], [6, 12, 14], # hip
         [11, 13, 15], [12, 14, 16] # knee
+    ]
+    
+    distance = [
+        # upper arm - shoulder to elbow
+        [POSE_DICT['left_shoulder'], POSE_DICT['left_elbow']], # left
+        [POSE_DICT['right_shoulder'], POSE_DICT['right_elbow']], # right
+        
+        # lower arm - elbow to wrist
+        [POSE_DICT['left_elbow'], POSE_DICT['left_wrist']], # left
+        [POSE_DICT['right_elbow'], POSE_DICT['right_wrist']], # right
+        
+        # upper leg - hip to knee
+        [POSE_DICT['left_hip'], POSE_DICT['left_knee']], # left
+        [POSE_DICT['right_hip'], POSE_DICT['right_knee']], # right
+        
+        # lower leg - knee to ankle
+        [POSE_DICT['left_knee'], POSE_DICT['left_ankle']], # left
+        [POSE_DICT['right_knee'], POSE_DICT['right_ankle']], # right
+        
+        # 
+        # [POSE_DICT['']]
     ]
     # fmt: on
 
@@ -79,10 +100,9 @@ def plot(
     right_skeleton = {1, 3, 5, 7, 9, 11, 13}
 
     radius = 5
-    
+
     for kpt in kpts:
         num_kpts = len(kpts) // steps
-        # print(num_kpts, im.shape)
 
         # plot keypoints - circle
         for kid in range(num_kpts):
@@ -92,7 +112,8 @@ def plot(
                 and kid not in right_kpts
                 or side == "left"
                 and kid not in left_kpts
-                or conf is not None and (conf < conf_thres)
+                or conf is not None
+                and (conf < conf_thres)
             ):
                 continue
             r, g, b = pose_kpt_color[kid]
@@ -117,8 +138,10 @@ def plot(
                 and sk_id not in right_skeleton
                 or side == "left"
                 and kid not in left_skeleton
-                or conf1 is not None and conf1 < conf_thres
-                or conf2 is not None and conf2 < conf_thres
+                or conf1 is not None
+                and conf1 < conf_thres
+                or conf2 is not None
+                and conf2 < conf_thres
             ):
                 continue
             r, g, b = pose_limb_color[sk_id]
@@ -170,7 +193,9 @@ def plot(
                     y3_coord = int(y3_coord * H)
 
                 ang = calculate_angle(
-                    a=[x1_coord, y1_coord], b=[x2_coord, y2_coord], c=[x3_coord, y3_coord]
+                    a=[x1_coord, y1_coord],
+                    b=[x2_coord, y2_coord],
+                    c=[x3_coord, y3_coord],
                 )
 
                 cv2.putText(
