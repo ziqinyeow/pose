@@ -2,7 +2,7 @@ from pose import pipeline, Wiki
 
 
 # print(Wiki.list_models())
-pipeline("vitpose-b", "./data/bike1.mp4", side="right", angle=True)
+pipeline("rtmpose-l", "./data/DiveCam.mp4", side="both", angle=False, save=True)
 # pipeline("vitpose-b", "data/run.png", side="right", angle=True, show=True)
 # pipeline("movenet", "./data/run.png", show=True, side="right", save=False)
 # pipeline("vitpose-b", "data/bike.mp4", side="right", show=True)
