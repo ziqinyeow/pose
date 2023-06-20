@@ -1,9 +1,11 @@
 import importlib
 from ..type import BACKEND
 
-MODEL = {"vitpose-b": "vitpose-b.pth"}
+MODEL = {"vitpose-b": "vitpose-b.pth",
+         "vitpose-l": "vitpose-l.pth"}
 
-MODEL_CONFIG = {"vitpose-b": "vitpose_base_coco_256x192"}
+MODEL_CONFIG = {"vitpose-b": "vitpose_base_coco_256x192",
+                "vitpose-l": "vitpose_large_coco_256x192"}
 
 DEFAULT_BACKEND: BACKEND = "pt"
 
