@@ -3,3 +3,10 @@ clean:
 
 demo:
 	python demo.py
+
+test:
+	python test.py
+
+onnx:
+	python onnx.py test/mmdeploy/rtmpose-ort/rtmpose-m/end2end.onnx data/human-pose.jpg
+	

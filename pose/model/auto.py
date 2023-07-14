@@ -21,6 +21,8 @@ class AutoModel:
             module = importlib.import_module(f"pose.model.{main_model}.model_tf")
         elif backend == "tflite":
             module = importlib.import_module(f"pose.model.{main_model}.model_tflite")
+        elif backend == "onnx":
+            module = importlib.import_module(f"pose.model.{main_model}.model_onnx")
 
         # TODO: Remove the use of only the last class model
         model = list(map(lambda x: x, inspect.getmembers(module, inspect.isclass)))[-1][

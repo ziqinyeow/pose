@@ -1,13 +1,23 @@
-from pose import pipeline, Wiki
+from pose import pipeline
+import time
 
 
 # print(Wiki.list_models())
-pipeline("rtmpose-l", "./data/DiveCam.mp4", side="both", angle=False, save=True)
+start_time = time.time()
+pipeline(
+    "rtmpose-m",
+    "./data/human-pose.jpg",
+    save="output_torch.jpg",
+    show=False,
+)
+end_time = time.time()
+print("Inference done, time cost: {:.4f}s".format(end_time - start_time))
+exit()
+# pipeline("movenet", "./data/bike.mp4", show=True, side="right", save=False)
 # pipeline("vitpose-b", "data/run.png", side="right", angle=True, show=True)
 # pipeline("movenet", "./data/run.png", show=True, side="right", save=False)
 # pipeline("vitpose-b", "data/bike.mp4", side="right", show=True)
-# pipeline("movenet", "./data/bike.mp4", show=True, side="right", save=False)
-exit()
+# exit()
 
 # image inferencing
 # pipeline(
@@ -16,13 +26,14 @@ exit()
 
 
 # Optimize for crop region algorithm - video
-pipeline("movenet", "./data/", show=True, side="right", save=False)
+# pipeline("movenet", "./data/", show=True, side="right", save=False)
 
-# pipeline(
-#     "movenet",
-#     "https://www.youtube.com/watch?v=1VYhyppWTDc&ab_channel=GlobalCyclingNetwork",
-#     show=True,
-# )
+pipeline(
+    "movenet",
+    "https://www.youtube.com/watch?v=1VYhyppWTDc&ab_channel=GlobalCyclingNetwork",
+    show=True,
+)
+exit()
 
 # Manual image inference
 import cv2
@@ -40,12 +51,14 @@ cv2.imshow("frame", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
+# exit()
+
 
 # Manual video inference - bad result -> use pipeline API with crop region optimized
 import cv2
 from pose import AutoModel, load, plot
 
-model = AutoModel.from_pretrained("movenet")
+model = AutoModel.from_pretrained("rtmpose-l")
 
 for frame in load(src="data/bike.mp4"):
     keypoints = model(frame)  # (1, 1, 17, 3)

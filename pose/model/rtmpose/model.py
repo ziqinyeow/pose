@@ -3,16 +3,12 @@ import torch
 
 from ..base import BaseModel
 
-# from mmengine.registry import init_default_scope
 from mmdet.apis import inference_detector, init_detector
 from mmpose.apis import inference_topdown
 from mmpose.apis import init_model as init_pose_estimator
 from mmpose.evaluation.functional import nms
-from mmpose.registry import VISUALIZERS
 from mmpose.structures import merge_data_samples
 from mmpose.utils import adapt_mmdet_pipeline
-
-from mmdet.datasets.transforms import PackDetInputs
 
 
 class RTMPose(BaseModel):
@@ -28,7 +24,6 @@ class RTMPose(BaseModel):
         self.detector.cfg = adapt_mmdet_pipeline(self.detector.cfg)
 
     def forward(self, frame: np.ndarray):
-        # init_default_scope(detector.cfg.get('default_scope', 'mmdet'))
         try:
             detect_result = inference_detector(self.detector, frame)
             pred_instance = detect_result.pred_instances.cpu().numpy()
